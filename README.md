@@ -31,7 +31,7 @@ There is no backend authentication. API keys are handled entirely client-side:
 - On first visit the app prompts for an API key (Anthropic or OpenAI).
 - The key is stored in **`sessionStorage`** — it lives only for the current browser tab and is wiped when the tab is closed. It is never persisted anywhere on the server.
 - Each request sends the key in an `X-Api-Key` header. The backend uses it to construct a per-request AI client and discards it immediately after the response.
-- If no key is provided, the backend falls back to its own server-side key (if one was configured at startup).
+- If no key is provided, the backend returns an error asking the user to supply one.
 
 **Provider detection** is automatic: keys starting with `sk-ant-` route to Anthropic (Claude); any other key routes to OpenAI.
 
@@ -49,11 +49,6 @@ uvicorn backend.main:app --reload --port 8000
 
 Open http://localhost:8000. Enter your Anthropic or OpenAI API key when prompted, then upload a contract or click **"Try a sample"**.
 
-To configure a server-side fallback key so the app works without the user supplying one:
-
-```bash
-ANTHROPIC_API_KEY=sk-ant-... uvicorn backend.main:app --reload --port 8000
-```
 
 ## Bundled sample contracts
 
@@ -84,4 +79,4 @@ GET  /                    serve the frontend
 
 1. Push to GitHub
 2. Create a **Web Service** on Render pointing at the repo — it picks up `render.yaml` automatically
-3. Optionally set a server-side API key in Render's Environment settings as a fallback
+3. No environment variables needed — keys are supplied by users at runtime
