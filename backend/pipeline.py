@@ -10,7 +10,7 @@ from loguru import logger
 from models import ContractExtraction
 from playbook import PLAYBOOK_SUMMARY
 
-_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"]) if os.environ.get("ANTHROPIC_API_KEY") else None
 
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
 OPENAI_MODEL = "gpt-5.4-mini"
@@ -359,6 +359,8 @@ def review_contract_stream(contract_text: str, filename: str, api_key: str | Non
         extraction = _extract_openai(contract_text, client)
     else:
         client = anthropic.Anthropic(api_key=api_key) if api_key else _client
+        if client is None:
+            raise ValueError("No API key provided. Please enter your Anthropic or OpenAI key.")
         extraction = _extract_anthropic(contract_text, client)
 
     yield _sse("meta", {
